@@ -39,7 +39,7 @@ def add_restaurants(restaurant, typeCol):
 
 def add_restaurant(restaurant):
     try:
-        collection = get_collection_restaurants()
+        collection = get_collection_restaurants("raw")
         result = collection.insert_one(restaurant)
 
         return result.inserted_id
