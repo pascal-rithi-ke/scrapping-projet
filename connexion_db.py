@@ -46,19 +46,19 @@ def add_restaurant(restaurant):
     except Exception as e:
         print("Erreur lors de l'ajout du restaurant :", e)
 
-def add_reviews_to_restaurant(restaurant_id, reviews):
+def add_reviews_to_restaurant(restaurant_id, reviews, typeCol):
     # insert the array called 'avis' in one restaurant
     try:
-        collection = get_collection_restaurants()
+        collection = get_collection_restaurants(typeCol)
         result = collection.update_one({"_id": restaurant_id}, {"$push": {"avis": {"$each": reviews}}})
 
         return result
     except Exception as e:
         print("Erreur lors de l'ajout des avis :", e)
 
-def add_one_review_to_restaurant(restaurant_id, avis):
+def add_one_review_to_restaurant(restaurant_id, avis, typeCol):
     try:
-        collection = get_collection_restaurants()
+        collection = get_collection_restaurants(typeCol)
         # Ajoute chaque avis au tableau d'avis du restaurant spécifique
         for avis in avis:
             collection.update_one({"_id": restaurant_id}, {"$push": {"avis": avis}})
@@ -66,9 +66,9 @@ def add_one_review_to_restaurant(restaurant_id, avis):
         print("Erreur lors de l'ajout des avis au restaurant :", e)
 
 
-def get_restaurant(restaurant_id):
+def get_restaurant(restaurant_id, typeCol):
     try:
-        collection = get_collection_restaurants()
+        collection = get_collection_restaurants(typeCol)
         restaurant = collection.find_one({"_id": restaurant_id})
         return restaurant
     except Exception as e:
