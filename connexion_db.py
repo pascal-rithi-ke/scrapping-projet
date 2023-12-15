@@ -12,6 +12,8 @@ collection_name = os.getenv("MONGO_COLLECTION_NAME")
 collection_name_test = os.getenv("MONGO_COLLECTION_NAME_TEST")
 collection_name_train = os.getenv("MONGO_COLLECTION_NAME_TRAIN")
 
+collection_name_old = os.getenv("MONGO_COLLECTION_NAME_OLD")
+
 uri = f"mongodb+srv://{user}:{password}@{host}/{db_name}?retryWrites=true&w=majority"
 
 def get_collection_restaurants(typeCol):
@@ -24,6 +26,8 @@ def get_collection_restaurants(typeCol):
             return db[collection_name_test]
         elif typeCol == "train":
             return db[collection_name_train]
+        elif typeCol == "old":
+            return db[collection_name_old]
         else:
             raise ValueError("Type de collection non pris en charge")
     except Exception as e:
@@ -73,3 +77,42 @@ def get_restaurant(restaurant_id, typeCol):
         return restaurant
     except Exception as e:
         print("Erreur lors de la récupération du restaurant :", e)
+        
+        
+def get_all_reviews(typeCol):
+    try:
+        documents = get_collection_restaurants(typeCol).find()
+        all_reviews = []
+        for document in documents:
+            avis = document.get('avis', [])
+            for avis_item in avis:
+                note = avis_item.get('note', '')
+                texte = avis_item.get('texte', '')
+                all_reviews.append({"note": note, "texte": texte})
+        return all_reviews
+    except Exception as e:
+        print("Erreur lors de la récupération des avis :", e)
+        return []
+
+def add_all_reviews(all_reviews, typeCol):
+    try:
+        collection = get_collection_restaurants(typeCol)
+        result = collection.insert_many(all_reviews)
+    except Exception as e:
+        print("Erreur lors de l'ajout des avis :", e)
+
+# récupérer le nombre max de reviews
+def get_sum_all_reviews(typeCol):
+    try:
+        collection = get_collection_restaurants(typeCol)
+        documents = collection.find()
+        
+        total_reviews = 0
+        
+        for document in documents:
+            avis = document.get('avis', [])
+            total_reviews += len(avis)
+        
+        return total_reviews
+    except Exception as e:
+        print("Erreur lors de la récupération du nombre total d'avis :", e)
